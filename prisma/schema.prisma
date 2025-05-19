@@ -1,0 +1,201 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Admin {
+  id              String            @id(map: "admin1_pkey") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at      DateTime          @default(now()) @db.Timestamptz(6)
+  first_name      String            @db.VarChar
+  last_name       String            @db.VarChar
+  email           String            @unique(map: "admin_email_key") @db.VarChar
+  password        String            @db.VarChar
+  profil          String?           @unique(map: "admin_profil_key") @default("") @db.VarChar
+  Client          Client[]
+  Devis           Devis[]
+  Entreprise      Entreprise[]
+  Expense         Expense[]
+  ExpenseCategory ExpenseCategory[]
+  Invoice         Invoice[]
+  Leads           Leads[]
+  Payment         Payment[]
+  Personne        Personne[]
+  Product         Product[]
+  ProductCategory ProductCategory[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Client {
+  id         String    @id(map: "client_pkey") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at DateTime  @default(now()) @db.Timestamptz(6)
+  first_name String    @db.VarChar
+  last_name  String    @db.VarChar
+  pays       String    @db.VarChar
+  tele       String    @db.VarChar
+  email      String    @db.VarChar
+  type       String    @db.VarChar
+  created_by String    @db.Uuid
+  Admin      Admin     @relation(fields: [created_by], references: [id], onDelete: Cascade)
+  Devis      Devis[]
+  Invoice    Invoice[]
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Devis {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at     DateTime @default(now()) @db.Timestamptz(6)
+  numFacture     String   @db.VarChar
+  client         String?  @db.Uuid
+  dateExpiration DateTime @db.Timestamptz(6)
+  total          Float
+  paid           Float
+  status         String
+  type           String
+  created_by     String   @db.Uuid
+  articles       Json?    @db.Json
+  Client         Client?  @relation(fields: [client], references: [id], onUpdate: NoAction)
+  Admin          Admin    @relation(fields: [created_by], references: [id], onDelete: Cascade)
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Entreprise {
+  id         String     @id(map: "entreprise_pkey") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at DateTime   @default(now()) @db.Timestamptz(6)
+  nom        String     @db.VarChar
+  contact    Json       @db.Json
+  tele       String     @db.VarChar
+  website    String     @db.VarChar
+  email      String     @db.VarChar
+  created_by String     @db.Uuid
+  Admin      Admin      @relation(fields: [created_by], references: [id], onDelete: Cascade)
+  Personne   Personne[]
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model ExpenseCategory {
+  id         String   @id(map: "expensecategory_pkey") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  created_by String   @db.Uuid
+  nom        String?  @db.VarChar
+  desc       String?
+  couleur    String?  @db.VarChar
+  active     Boolean?
+  Admin      Admin    @relation(fields: [created_by], references: [id], onDelete: Cascade)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model Invoice {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at     DateTime  @default(now()) @db.Timestamptz(6)
+  numFacture     String    @db.VarChar
+  client         String?   @db.Uuid
+  dateExpiration DateTime  @db.Date
+  total          Float
+  paid           Float
+  status         String
+  type           String
+  created_by     String    @db.Uuid
+  articles       Json?     @db.Json
+  Client         Client?   @relation(fields: [client], references: [id], onUpdate: NoAction)
+  Admin          Admin     @relation(fields: [created_by], references: [id], onDelete: Cascade)
+  Payment        Payment[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Leads {
+  id         String   @id(map: "leads_pkey") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  type       String   @db.VarChar
+  nom        String   @db.VarChar
+  statut     String   @db.VarChar
+  source     String   @db.VarChar
+  pays       String   @db.VarChar
+  tele       String   @db.VarChar
+  email      String   @db.VarChar
+  projet     String   @db.VarChar
+  created_by String   @db.Uuid
+  Admin      Admin    @relation(fields: [created_by], references: [id], onDelete: Cascade)
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Personne {
+  id         String      @id(map: "personne_pkey") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at DateTime    @default(now()) @db.Timestamptz(6)
+  created_by String      @db.Uuid
+  first_name String      @db.VarChar
+  last_name  String      @db.VarChar
+  tele       String      @db.VarChar
+  entreprise String?     @db.Uuid
+  email      String      @unique @db.VarChar
+  Admin      Admin       @relation(fields: [created_by], references: [id], onDelete: Cascade)
+  Entreprise Entreprise? @relation(fields: [entreprise], references: [id], onDelete: Cascade)
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model ProductCategory {
+  numCat     String   @id(map: "productcategory_pkey") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  created_by String?  @db.Uuid
+  nom        String?  @db.VarChar
+  desc       String?
+  couleur    String?  @db.VarChar
+  active     Boolean?
+  Admin      Admin?   @relation(fields: [created_by], references: [id], onDelete: Cascade)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Expense {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  nom        String   @db.VarChar
+  category   String?  @db.VarChar
+  totale     Float
+  desc       String?
+  ref        String?  @db.VarChar
+  devis      String?  @db.VarChar
+  created_by String   @db.Uuid
+  Admin      Admin    @relation(fields: [created_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Payment {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  numero     String?  @db.VarChar
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  date       DateTime @db.Date
+  montant    Float
+  mode       String   @db.VarChar
+  ref        String?  @db.VarChar
+  desc       String?
+  created_by String   @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  invoice    String   @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  Admin      Admin    @relation(fields: [created_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  Invoice    Invoice  @relation(fields: [invoice], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Product {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  nom        String   @db.VarChar
+  category   String?  @db.VarChar
+  price      Float
+  desc       String?
+  ref        String?  @db.VarChar
+  devis      String   @db.VarChar
+  created_by String   @db.Uuid
+  Admin      Admin    @relation(fields: [created_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
